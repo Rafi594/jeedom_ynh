@@ -1,0 +1,8 @@
+#!/bin/bash
+
+domain=$(sudo yunohost app setting cops domain)
+
+sudo rm /etc/nginx/conf.d/$domain.d/cops.conf
+
+sudo service nginx reload
+sudo yunohost app ssowatconf 
