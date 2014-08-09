@@ -63,4 +63,4 @@ sudo service jeedom start
 
 # Configure LDAP and the Admin User
 mysql -u $db_user -p$db_pwd $db_user < ../conf/ldap_config.sql
-mysql -u $db_user -p$db_pwd $db_user -e 'INSERT INTO `user` (`id` ,`login` ,`options` ,`rights`) VALUES (NULL , 'cedric', '{"registerDesktop":""}', '{"admin":1}');'
+mysql -u $db_user -p$db_pwd $db_user -e "INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', 'cedric', '', NULL, NULL, '{\"admin\":1}');"
