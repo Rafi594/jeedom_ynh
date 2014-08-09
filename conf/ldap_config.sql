@@ -1,4 +1,4 @@
-REPLACE INTO config (plugin, key, value) VALUES
+INSERT INTO config (plugin, key, value) VALUES
 ('core', 'ldap:basedn', 'ou=users,dc=yunohost,dc=org'),
 ('core', 'ldap:host', 'localhost'),
 ('core', 'ldap:domain', 'dc=yunohost,dc=org'),
