@@ -27,6 +27,13 @@
         },
         "example": "/jeedom",
         "default": "/jeedom"
+      },
+      {
+        "name": "user",
+        "ask": {
+          "en": "Choose a Yunohost user to be admin"
+        },
+        "example": "valid user"
       }
     ]
   }
