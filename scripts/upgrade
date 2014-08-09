@@ -1,14 +1,12 @@
 #!/bin/bash
 
 # Retrieve arguments
-domain=$(sudo yunohost app setting cops domain)
-path=$(sudo yunohost app setting cops path)
+domain=$(sudo yunohost app setting jeedom domain)
+path=$(sudo yunohost app setting jeedom path)
 
-# Remove trailing "/" for next commands
-path=${path%/}
 
 # Configure Nginx and reload
 sed -i "s@PATHTOCHANGE@$path@g" ../conf/nginx.conf
-sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/cops.conf
+sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/jeedom.conf
 sudo service nginx reload
 
