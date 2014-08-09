@@ -10,12 +10,26 @@ if [[ ! $? -eq 0 ]]; then
   exit 1
 fi
 
-#sudo apt-get install php5-gd php5-sqlite
+sudo apt-get install -y ffmpeg libssh2-php ntp unzip php5-cli php5-curl php5-json nodejs usb-modeswitch python-serial
 
 final_path=/var/www/jeedom
+sudo mkdir -p $final_path
+sudo cp -a ../sources/* $final_path
+sudo mkdir $final_path/tmp
+sudo chmod 775 -R $final_path
+sudo chown -R www-data:www-data $final_path
+
+sudo adduser www-data dialout
+sudo adduser www-data gpio
 
 # Configure Nginx and reload
 sudo sed -i "s@PATHTOCHANGE@$path@g"  ../conf/nginx.conf
 sudo sed -i "s@ALIASTOCHANGE@$final_path/@g" ../conf/nginx.conf
 sudo cp ../conf/nginx.conf /etc/nginx/conf.d/$domain.d/jeedom.conf
 sudo service nginx reload
+
+sudo cp $final_path/jeedom /etc/init.d/
+sudo chmod +x /etc/init.d/jeedom
+sudo update-rc.d jeedom defaults
+    sudo sed -i 's%PATH_TO_JEEDOM="/usr/share/nginx/www/jeedom"%PATH_TO_JEEDOM="/var/www/jeedom"%g' /etc/init.d/jeedom
+sudo service jeedom start
