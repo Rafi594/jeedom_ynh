@@ -43,10 +43,10 @@ sudo yunohost app initdb $db_user -p $db_pwd
 sudo yunohost app setting jeedom mysqlpwd -v $db_pwd
 
 # Configure Jeedom database and initialize app
-sudo cp core/config/common.config.sample.php core/config/common.config.php
-sudo sed -i -e "s/#PASSWORD#/${db_pwd}/g" core/config/common.config.php 
-sudo chown www-data:www-data core/config/common.config.php
-sudo php install/install.php mode=force
+sudo cp @$final_path/core/config/common.config.sample.php @$final_path/core/config/common.config.php
+sudo sed -i -e "s/#PASSWORD#/${db_pwd}/g" @$final_path/core/config/common.config.php 
+sudo chown www-data:www-data @$final_path/core/config/common.config.php
+sudo php @$final_path/install/install.php mode=force
 
 # Configure Nginx and reload
 sudo sed -i "s@PATHTOCHANGE@$path@g"  ../conf/nginx.conf
