@@ -377,7 +377,9 @@ class history {
         } else {
             $value = $_strcalcul;
         }
-        ksort($value);
+        if (is_array($value)) {
+            ksort($value);
+        }
         return $value;
     }
 
@@ -493,7 +495,11 @@ class history {
     }
 
     public function setValue($value) {
-        $this->value = $value;
+        if (strpos($value, '.') !== false) {
+            $this->value = str_replace(',', '', $value);
+        } else {
+            $this->value = str_replace(',', '.', $value);
+        }
     }
 
     public function setDatetime($datetime) {

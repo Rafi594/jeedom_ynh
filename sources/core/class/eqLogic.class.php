@@ -36,7 +36,8 @@ class eqLogic {
     protected $category;
     protected $_internalEvent = 0;
     protected $_debug = false;
-    private static $_templateArray;
+    protected $_object = null;
+    private static $_templateArray = array();
 
     /*     * ***********************Methode static*************************** */
 
@@ -125,14 +126,24 @@ class eqLogic {
     }
 
     public static function byType($_eqType_name) {
+        $result1 = array();
+        $result2 = array();
         $values = array(
             'eqType_name' => $_eqType_name
         );
-        $sql = 'SELECT ' . DB::buildField(__CLASS__) . '
-                FROM eqLogic
+        $sql = 'SELECT ' . DB::buildField(__CLASS__, 'el') . '
+                FROM eqLogic el
                 WHERE eqType_name=:eqType_name
-                ORDER BY name';
-        return self::cast(DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__));
+                    AND el.object_id IS NULL
+                ORDER BY el.name';
+        $result1 = self::cast(DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__));
+        $sql = 'SELECT ' . DB::buildField(__CLASS__, 'el') . '
+                FROM eqLogic el
+                INNER JOIN object ob ON el.object_id=ob.id
+                WHERE eqType_name=:eqType_name
+                ORDER BY ob.name,el.name';
+        $result2 = self::cast(DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__));
+        return array_merge($result1, $result2);
     }
 
     public static function byCategorie($_category) {
@@ -161,8 +172,8 @@ class eqLogic {
                 ORDER BY name';
         return self::cast(DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__));
     }
-    
-     public static function searchConfiguration($_configuration) {
+
+    public static function searchConfiguration($_configuration) {
         $values = array(
             'configuration' => '%' . $_configuration . '%'
         );
@@ -378,6 +389,20 @@ class eqLogic {
 
     /*     * *********************Methode d'instance************************* */
 
+    public function copy($_name) {
+        $eqLogicCopy = clone $this;
+        $eqLogicCopy->setName($_name);
+        $eqLogicCopy->setId('');
+        $eqLogicCopy->save();
+        foreach ($this->getCmd() as $cmd) {
+            $cmdCopy = clone $cmd;
+            $cmdCopy->setId('');
+            $cmdCopy->setEqLogic_id($eqLogicCopy->getId());
+            $cmdCopy->save();
+        }
+        return $eqLogicCopy;
+    }
+
     public function getTableName() {
         return 'eqLogic';
     }
@@ -387,20 +412,15 @@ class eqLogic {
             throw new Exception(__('La version demandé ne peut etre vide (mobile, dashboard ou scenario)', __FILE__));
         }
         $info = '';
-        $action = '';
-        $_version = jeedom::versionAlias($_version);
+        $version = jeedom::versionAlias($_version);
         $vcolor = 'cmdColor';
-        if ($_version == 'mobile') {
+        if ($version == 'mobile') {
             $vcolor = 'mcmdColor';
         }
         $cmdColor = jeedom::getConfiguration('eqLogic:category:' . $this->getPrimaryCategory() . ':' . $vcolor);
         if ($this->getIsEnable()) {
             foreach ($this->getCmd(null, null, true) as $cmd) {
-                if ($cmd->getType() == 'action') {
-                    $action.=$cmd->toHtml($_version, '', $cmdColor);
-                } else {
-                    $info.=$cmd->toHtml($_version, '', $cmdColor);
-                }
+                $info.=$cmd->toHtml($version, '', $cmdColor);
             }
         }
         $replace = array(
@@ -408,21 +428,19 @@ class eqLogic {
             '#name#' => ($this->getIsEnable()) ? $this->getName() : '<del>' . $this->getName() . '</del>',
             '#eqLink#' => $this->getLinkToConfiguration(),
             '#category#' => $this->getPrimaryCategory(),
-            '#background_color#' => $this->getBackgroundColor($_version),
-            '#action#' => $action,
+            '#background_color#' => $this->getBackgroundColor($version),
             '#info#' => $info,
         );
         if ($_version == 'dview' || $_version == 'mview') {
             $object = $this->getObject();
-            $replace['#name#'] = (is_object($object)) ? $object->getName() . ' - ' . $replace['#name#'] : $replace['#name#'];
+            $replace['#object_name#'] = (is_object($object)) ? $object->getName() . "<br/>" : '';
+        } else {
+            $replace['#object_name#'] = '';
         }
-        if (!isset(self::$_templateArray)) {
-            self::$_templateArray = array();
+        if (!isset(self::$_templateArray[$version])) {
+            self::$_templateArray[$version] = getTemplate('core', $version, 'eqLogic');
         }
-        if (!isset(self::$_templateArray[$_version])) {
-            self::$_templateArray[$_version] = getTemplate('core', $_version, 'eqLogic');
-        }
-        return template_replace($replace, self::$_templateArray[$_version]);
+        return template_replace($replace, self::$_templateArray[$version]);
     }
 
     public function getShowOnChild() {
@@ -579,7 +597,10 @@ class eqLogic {
     }
 
     public function getObject() {
-        return object::byId($this->object_id);
+        if ($this->_object == null) {
+            $this->_object = object::byId($this->object_id);
+        }
+        return $this->_object;
     }
 
     public function getEqType_name() {

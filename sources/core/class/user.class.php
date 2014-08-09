@@ -48,9 +48,11 @@ class user {
      * @return user object user 
      */
     public static function connect($_login, $_mdp) {
-        if (config::byKey('ldap::enable') == '1') {
+        if (config::byKey('ldap:enable') == '1') {
+            log::add("connection", "debug", __('Authentification par LDAP', __FILE__));
             $ad = self::connectToLDAP();
             if ($ad !== false) {
+                log::add("connection", "debug", __('Connection au LDAP OK', __FILE__));
                 $ad = ldap_connect(config::byKey('ldap:host'), config::byKey('ldap:port'));
                 ldap_set_option($ad, LDAP_OPT_PROTOCOL_VERSION, 3);
                 ldap_set_option($ad, LDAP_OPT_REFERRALS, 0);
@@ -58,8 +60,9 @@ class user {
                     log::add("connection", "info", __('Mot de passe erroné (', __FILE__) . $_login . ')');
                     return false;
                 }
+                log::add("connection", "debug", __('Bind user OK', __FILE__));
                 $result = ldap_search($ad, 'uid=' . $_login . ',' . config::byKey('ldap:basedn'), config::byKey('ldap:filter'));
-                log::add("connection", "debug", __('Recherche LDAP (', __FILE__) . $_login . ')');
+                log::add("connection", "info", __('Recherche LDAP (', __FILE__) . $_login . ')');
                 if ($result) {
                     $entries = ldap_get_entries($ad, $result);
                     if ($entries['count'] > 0) {
@@ -73,7 +76,7 @@ class user {
                         $user->setLogin($_login);
                         $user->setPassword(sha1($_mdp));
                         $user->save();
-                        log::add("connection", "INFO", __('Utilisateur creer depuis le LDAP : ', __FILE__) . $_login);
+                        log::add("connection", "info", __('Utilisateur creer depuis le LDAP : ', __FILE__) . $_login);
                         return $user;
                     } else {
                         $user = self::byLogin($_login);
@@ -92,6 +95,8 @@ class user {
                     return false;
                 }
                 return false;
+            }else{
+                 log::add("connection", "info", __('Impossible de se connecter au LDAP', __FILE__));
             }
         }
         $values = array(

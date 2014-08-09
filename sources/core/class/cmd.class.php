@@ -42,7 +42,7 @@ class cmd {
     protected $isVisible = 1;
     protected $_internalEvent = 0;
     protected $_eqLogic = null;
-    private static $_templateArray;
+    private static $_templateArray = array();
 
     /*     * ***********************Methode static*************************** */
 
@@ -107,7 +107,7 @@ class cmd {
         if ($_visible != null) {
             $sql .= ' AND `isVisible`=1';
         }
-        $sql .= ' ORDER BY `order`';
+        $sql .= ' ORDER BY `order`,`name`';
         return self::cast(DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__));
     }
 
@@ -366,7 +366,7 @@ class cmd {
         foreach ($matches[1] as $cmd_id) {
             if (is_numeric($cmd_id)) {
                 $cmd = self::byId($cmd_id);
-                if ($cmd->getType() == 'info') {
+                if (is_object($cmd) && $cmd->getType() == 'info') {
                     $cmd_value = $cmd->execCmd();
                     if ($cmd->getSubtype() == "string") {
                         $cmd_value = '"' . $cmd_value . '"';
@@ -514,12 +514,12 @@ class cmd {
      * @throws Exception
      */
     public function execCmd($_options = null, $cache = 1, $_sendNodeJsEvent = true) {
-        if ($this->getEventOnly() && $cache == 0) {
-            $cache = 1;
+        if ($cache == 0 && $this->getEventOnly()) {
+            $cache = 2;
         }
         if ($this->getType() == 'info' && $cache != 0) {
             $mc = cache::byKey('cmd' . $this->getId(), ($cache == 2) ? true : false);
-            if ($this->getEventOnly() == 1 || $cache == 2 || $mc->hasExpired() === false) {
+            if ($cache == 2 || $mc->hasExpired() === false) {
                 if ($mc->hasExpired() !== false) {
                     $this->setCollect(1);
                 }
@@ -529,6 +529,9 @@ class cmd {
         }
 
         $eqLogic = $this->getEqLogic();
+        if ($eqLogic->getIsEnable() != 1) {
+            throw new Exception(__('Equipement desactivé impossible d\éxecuter la commande : ' . $this->getHumanName()));
+        }
         $type = $eqLogic->getEqType_name();
         try {
             if ($_options !== null && $_options !== '') {
@@ -592,27 +595,18 @@ class cmd {
                 $this->setCollectDate(date('Y-m-d H:i:s'));
             }
             $this->setCollect(0);
-            if ($_sendNodeJsEvent) {
-                nodejs::pushUpdate('eventCmd', array('cmd_id' => $this->getId(), 'eqLogic_id' => $this->getEqLogic_id(), 'object_id' => $this->getEqLogic()->getObject_id()));
-                foreach (self::byValue($this->getId()) as $cmd) {
-                    nodejs::pushUpdate('eventCmd', array('cmd_id' => $this->getId(), 'eqLogic_id' => $this->getEqLogic_id(), 'object_id' => $this->getEqLogic()->getObject_id()));
-                }
+            nodejs::pushUpdate('eventCmd', array('cmd_id' => $this->getId(), 'eqLogic_id' => $this->getEqLogic_id(), 'object_id' => $this->getEqLogic()->getObject_id()));
+            foreach (self::byValue($this->getId()) as $cmd) {
+                nodejs::pushUpdate('eventCmd', array('cmd_id' => $cmd->getId(), 'eqLogic_id' => $cmd->getEqLogic_id(), 'object_id' => $cmd->getEqLogic()->getObject_id()));
             }
         }
         return $value;
     }
 
     public function toHtml($_version = 'dashboard', $options = '', $_cmdColor = null, $_cache = 2) {
-        if ($_version == '') {
-            throw new Exception(__('La version demandée ne peut etre vide (mobile, dashboard ou scenario)', __FILE__));
-        }
         $_version = jeedom::versionAlias($_version);
         $html = '';
         $template_name = 'cmd.' . $this->getType() . '.' . $this->getSubType() . '.' . $this->getTemplate($_version, 'default');
-        $template = '';
-        if (!is_array(self::$_templateArray)) {
-            self::$_templateArray == array();
-        }
         if (!isset(self::$_templateArray[$_version . '::' . $template_name])) {
             if ($this->getTemplate($_version, 'default') != 'default') {
                 $template = getTemplate('core', $_version, $template_name, 'widget');
@@ -650,6 +644,11 @@ class cmd {
         $replace = array(
             '#id#' => $this->getId(),
             '#name#' => ($this->getDisplay('icon') != '') ? $this->getDisplay('icon') : $this->getName(),
+            '#history#' => '',
+            '#displayHistory#' => 'display : none;',
+            '#unite#' => $this->getUnite(),
+            '#minValue#' => $this->getConfiguration('minValue', 0),
+            '#maxValue#' => $this->getConfiguration('maxValue', 100)
         );
         if ($_cmdColor == null && $_version != 'scenario') {
             $eqLogic = $this->getEqLogic();
@@ -658,54 +657,42 @@ class cmd {
         } else {
             $replace['#cmdColor#'] = $_cmdColor;
         }
-        $replace['#history#'] = '';
-        $replace['#displayHistory#'] = 'display : none;';
-        $replace['#unite#'] = $this->getUnite();
-        $replace['#minValue#'] = $this->getConfiguration('minValue', 0);
-        $replace['#maxValue#'] = $this->getConfiguration('maxValue', 100);
-
         if ($this->getType() == 'info') {
             $replace['#state#'] = '';
             $replace['#tendance#'] = '';
-            $value = trim($this->execCmd(null, $_cache));
-            if ($value === null) {
-                return template_replace($replace, $template);
-            }
+            $replace['#state#'] = trim($this->execCmd(null, $_cache));
             if ($this->getSubType() == 'binary' && $this->getDisplay('invertBinary') == 1) {
-                $value = ($value == 1) ? 0 : 1;
+                $replace['#state#'] = ($replace['#state#'] == 1) ? 0 : 1;
             }
-            $replace['#state#'] = $value;
             $replace['#collectDate#'] = $this->getCollectDate();
-            if (config::byKey('displayStatsWidget') == 1 && $this->getIsHistorized() == 1 && strpos($template, '#displayHistory#') !== false) {
-                $startHist = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . ' -' . config::byKey('historyCalculPeriod') . ' hour'));
-                $replace['#displayHistory#'] = '';
-                $historyStatistique = $this->getStatistique($startHist, date('Y-m-d H:i:s'));
-                $replace['#averageHistoryValue#'] = round($historyStatistique['avg'], 1);
-                $replace['#minHistoryValue#'] = round($historyStatistique['min'], 1);
-                $replace['#maxHistoryValue#'] = round($historyStatistique['max'], 1);
-                $tendance = $this->getTendance($startHist, date('Y-m-d H:i:s'));
-                $replace['#tendance#'] = 'fa fa-minus';
-                if ($tendance > config::byKey('historyCalculTendanceThresholddMax')) {
-                    $replace['#tendance#'] = 'fa fa-arrow-up';
-                }
-                if ($tendance < config::byKey('historyCalculTendanceThresholddMin')) {
-                    $replace['#tendance#'] = 'fa fa-arrow-down';
-                }
-            }
-            $html .= template_replace($replace, $template);
             if ($this->getIsHistorized() == 1) {
                 $replace['#history#'] = 'history cursor';
-                if (!isset(self::$_templateArray[$_version . 'cmd.info.history.default'])) {
-                    self::$_templateArray[$_version . 'cmd.info.history.default'] = getTemplate('core', $_version, 'cmd.info.history.default');
+                if (config::byKey('displayStatsWidget') == 1 && strpos($template, '#displayHistory#') !== false) {
+                    $startHist = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . ' -' . config::byKey('historyCalculPeriod') . ' hour'));
+                    $replace['#displayHistory#'] = '';
+                    $historyStatistique = $this->getStatistique($startHist, date('Y-m-d H:i:s'));
+                    $replace['#averageHistoryValue#'] = round($historyStatistique['avg'], 1);
+                    $replace['#minHistoryValue#'] = round($historyStatistique['min'], 1);
+                    $replace['#maxHistoryValue#'] = round($historyStatistique['max'], 1);
+                    $tendance = $this->getTendance($startHist, date('Y-m-d H:i:s'));
+                    $replace['#tendance#'] = 'fa fa-minus';
+                    if ($tendance > config::byKey('historyCalculTendanceThresholddMax')) {
+                        $replace['#tendance#'] = 'fa fa-arrow-up';
+                    }
+                    if ($tendance < config::byKey('historyCalculTendanceThresholddMin')) {
+                        $replace['#tendance#'] = 'fa fa-arrow-down';
+                    }
                 }
-                $html .= template_replace($replace, self::$_templateArray[$_version . 'cmd.info.history.default']);
             }
+            return template_replace($replace, $template);
         } else {
             $cmdValue = $this->getCmdValue();
             if (is_object($cmdValue) && $cmdValue->getType() == 'info') {
                 $replace['#state#'] = $cmdValue->execCmd(null, 2);
+                $replace['#valueName#'] = $cmdValue->getName();
             } else {
                 $replace['#state#'] = ($this->getLastValue() != null) ? $this->getLastValue() : '';
+                $replace['#valueName#'] = $this->getName();
             }
             $html .= template_replace($replace, $template);
             if (trim($html) == '') {
@@ -723,8 +710,8 @@ class cmd {
                     $html = template_replace($replace, $html);
                 }
             }
+            return $html;
         }
-        return $html;
     }
 
     public function event($_value) {
@@ -767,9 +754,12 @@ class cmd {
                 $this->setCollect(0);
                 nodejs::pushUpdate('eventCmd', array('cmd_id' => $this->getId(), 'eqLogic_id' => $this->getEqLogic_id(), 'object_id' => $this->getEqLogic()->getObject_id()));
                 foreach (self::byValue($this->getId()) as $cmd) {
-                    nodejs::pushUpdate('eventCmd', array('cmd_id' => $cmd->getId(), 'eqLogic_id' => $cmd->getEqLogic_id(), 'object_id' => $cmd->getEqLogic()->getObject_id()));
+                    if ($cmd->getType() == 'action') {
+                        nodejs::pushUpdate('eventCmd', array('cmd_id' => $cmd->getId(), 'eqLogic_id' => $cmd->getEqLogic_id(), 'object_id' => $cmd->getEqLogic()->getObject_id()));
+                    } else {
+                        $cmd->event($cmd->execute());
+                    }
                 }
-                //log::add($eqLogic->getEqType_name(), 'Event', __('Message venant de', __FILE__) . $this->getHumanName() . ' : ' . $_value . __(' /cache lifetime =>', __FILE__) . $this->getCacheLifetime());
                 $internalEvent = new internalEvent();
                 $internalEvent->setEvent('event::cmd');
                 $internalEvent->setOptions('id', $this->getId());
@@ -781,6 +771,11 @@ class cmd {
         } else {
             log::add('core', 'Error', __('Impossible de trouver l\'équipement correspondant à l\'id', __FILE__) . $this->getEqLogic_id() . __(' ou équipement désactivé. Evènement sur commande :', __FILE__) . print_r($this, true));
         }
+    }
+
+    public function invalidCache() {
+        $mc = cache::byKey('cmd' . $this->getId());
+        $mc->invalid();
     }
 
     public function emptyHistory() {

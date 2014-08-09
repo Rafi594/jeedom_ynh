@@ -326,7 +326,7 @@ sendVarToJS('ldapEnable', config::byKey('ldap::enable'));
                             <div class="form-group">
                                 <label class="col-lg-2 control-label">{{Mot de passe}}</label>
                                 <div class="col-lg-3">
-                                    <input type="text"  class="configKey form-control" data-l1key="ldap:password" />
+                                    <input type="password"  class="configKey form-control" data-l1key="ldap:password" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -335,8 +335,15 @@ sendVarToJS('ldapEnable', config::byKey('ldap::enable'));
                                     <input type="text"  class="configKey form-control" data-l1key="ldap:filter" />
                                 </div>
                             </div>
+                             <div class="form-group alert alert-danger">
+                                <label class="col-lg-2 control-label">{{Autoriser REMOTE_USER}}</label>
+                                <div class="col-lg-3">
+                                    <input type="checkbox"  class="configKey" data-l1key="sso:allowRemoteUser" />
+                                </div>
+                            </div>
                         </fieldset>
                     </form>
+                    <div class="alert alert-info">{{N'oubliez pas de sauvegarder la configuration avant de tester}}</div>
                     <a class='btn btn-default' id='bt_testLdapConnection'>{{Tester la connexion}}</a>
                 </div>
             </div>

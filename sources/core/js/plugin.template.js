@@ -61,6 +61,40 @@ if (getUrlVars('removeSuccessFull') == 1) {
 }
 
 /**************************EqLogic*********************************************/
+$('.eqLogicAction[data-action=copy]').on('click', function() {
+    if ($('.li_eqLogic.active').attr('data-eqLogic_id') != undefined) {
+        bootbox.prompt("{{Nom la copie de l'équipement ?}}", function(result) {
+            if (result !== null) {
+                jeedom.eqLogic.copy({
+                    id: $('.li_eqLogic.active').attr('data-eqLogic_id'),
+                    name: result,
+                    error: function(error) {
+                        $('#div_alert').showAlert({message: error.message, level: 'danger'});
+                    },
+                    success: function(data) {
+                        modifyWithoutSave = false;
+                        if ($('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + ']').length != 0) {
+                            var name = $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + '] a').text();
+                            $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + '] a').empty().append(name.substr(0, name.lastIndexOf("[")) + '[' + data.name + ']');
+                            $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + ']').click();
+                        } else {
+                            var vars = getUrlVars();
+                            var url = 'index.php?';
+                            for (var i in vars) {
+                                if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
+                                    url += i + '=' + vars[i].replace('#', '') + '&';
+                                }
+                            }
+                            url += 'id=' + data.id + '&saveSuccessFull=1';
+                            window.location.href = url;
+                        }
+                    }
+                });
+                return false;
+            }
+        });
+    }
+});
 
 $('.eqLogicAction[data-action=save]').on('click', function() {
     var eqLogics = [];
@@ -82,6 +116,8 @@ $('.eqLogicAction[data-action=save]').on('click', function() {
         success: function(data) {
             modifyWithoutSave = false;
             if ($('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + ']').length != 0) {
+                var name = $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + '] a').text();
+                $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + '] a').empty().append(name.substr(0, name.lastIndexOf("[")) + '[' + data.name + ']');
                 $('#ul_eqLogic .li_eqLogic[data-eqLogic_id=' + data.id + ']').click();
             } else {
                 var vars = getUrlVars();

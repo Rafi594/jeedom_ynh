@@ -33,6 +33,10 @@ class translate {
         if ($_content == '' || $_name == '') {
             return '';
         }
+        $language = self::getLanguage();
+        if ($language == 'fr_FR') {
+            return preg_replace("/{{(.*?)}}/s", '$1', $_content);
+        }
         if (substr($_name, 0, 1) == '/') {
             if (strpos($_name, 'plugins') !== false) {
                 $_name = substr($_name, strpos($_name, 'plugins'));
@@ -45,8 +49,6 @@ class translate {
                 }
             }
         }
-
-        $language = self::getLanguage();
         $modify = false;
         $translate = self::getTranslation();
         preg_match_all("/{{(.*?)}}/s", $_content, $matches);
@@ -73,7 +75,7 @@ class translate {
             }
             $_content = str_replace("{{" . $text . "}}", $replace, $_content);
         }
-        if ($modify && (defined('TRANSLATION_AUTODISCOVERY') && TRANSLATION_AUTODISCOVERY == 1) && self::getLanguage() != 'fr_FR') {
+        if ($modify && (defined('TRANSLATION_AUTODISCOVERY') && TRANSLATION_AUTODISCOVERY == 1)) {
             static::$translation[self::getLanguage()] = $translate;
             self::saveTranslation($language);
         }

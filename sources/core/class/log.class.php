@@ -116,7 +116,9 @@ class log {
      */
     public static function remove($_log) {
         $path = self::getPathToLog($_log);
-        unlink($path);
+        if (file_exists($path) && $log != 'nginx.error') {
+            unlink($path);
+        }
         return true;
     }
 
@@ -124,7 +126,9 @@ class log {
         $logs = ls(dirname(__FILE__) . '/../../log/', '*');
         foreach ($logs as $log) {
             $path = dirname(__FILE__) . '/../../log/' . $log;
-            unlink($path);
+            if ($log != 'nginx.error') {
+                unlink($path);
+            }
         }
         return true;
     }
@@ -171,12 +175,8 @@ class log {
     }
 
     private static function isTypeLog($_type) {
-        if (!isset(self::$logLevel) || !is_array(self::$logLevel)) {
-            try {
-                self::$logLevel = config::byKey('logLevel');
-            } catch (Exception $e) {
-                self::$logLevel = array();
-            }
+        if (!is_array(self::$logLevel)) {
+            self::$logLevel = config::byKey('logLevel');
         }
         if (!isset(self::$logLevel[$_type]) || self::$logLevel[$_type] == 1) {
             return true;

@@ -216,7 +216,7 @@ try {
         if (init('level', -1) > -1) {
             echo __("***************Mise à jour des plugins***************\n", __FILE__);
             update::updateAll();
-            echo __("***************Mise à jour des plugins réussis***************\n", __FILE__);
+            echo __("***************Mise à jour des plugins réussie***************\n", __FILE__);
         }
     } else {
 
@@ -260,6 +260,18 @@ try {
         $cron->setClass('plugin');
         $cron->setFunction('cron');
         $cron->setSchedule('* * * * * *');
+        $cron->setTimeout(5);
+        $cron->save();
+        $cron = new cron();
+        $cron->setClass('plugin');
+        $cron->setFunction('cronDaily');
+        $cron->setSchedule('00 00 * * *');
+        $cron->setTimeout(5);
+        $cron->save();
+        $cron = new cron();
+        $cron->setClass('plugin');
+        $cron->setFunction('cronHourly');
+        $cron->setSchedule('00 * * * *');
         $cron->setTimeout(5);
         $cron->save();
         $cron = new cron();

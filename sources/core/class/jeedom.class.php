@@ -67,7 +67,7 @@ class jeedom {
 
         /*         * *********Arret des scénarios**************** */
         try {
-            echo "Desactivation de tout les scenarios";
+            echo "Désactivation de tous les scénarios";
             config::save('enableScenario', 0);
             foreach (scenario::all() as $scenario) {
                 $scenario->stop();
@@ -86,7 +86,7 @@ class jeedom {
     public static function start() {
         try {
             /*             * *********Réactivation des scénarios**************** */
-            echo "Réactivation des scenarios : ";
+            echo "Réactivation des scénarios : ";
             config::save('enableScenario', 1);
             echo "OK\n";
             /*             * *********Réactivation des tâches**************** */
@@ -166,7 +166,7 @@ class jeedom {
         } else {
             $backup_dir = config::byKey('backup::path');
         }
-        $backups = ls($backup_dir, '*', false, array('files', 'quiet', 'datetime_asc'));
+        $backups = ls($backup_dir, '*.tar.gz', false, array('files', 'quiet', 'datetime_asc'));
         $return = array();
         foreach ($backups as $backup) {
             $return[$backup_dir . '/' . $backup] = $backup;

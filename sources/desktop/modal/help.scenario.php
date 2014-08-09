@@ -45,6 +45,7 @@ if (!isConnect()) {
                 <pre>
 {{&&/ET/et/AND/and : et}}
 {{||/OU/ou/OR/or : ou}}
+{{|^/XOR/xor : ou}}
                 </pre>
                 {{Vous pouvez aussi utiliser les tags suivants :}}
                 <pre>
@@ -54,12 +55,14 @@ if (!isConnect()) {
 {{#mois# : mois courant}}
 {{#annee# : année courante}}
 {{#time# : heure et minute courante (ex : 1715 pour 17h15)}}
+{{#timestamp# : retourne le nombre de secondes depuis le 1er janvier 1970}}
 {{#date# : jour et mois courant (ex : 1215 pour le 15 decembre)}}
 {{#semaine# : numéro de la semaine (ex : 51)}}
 {{#sjour# : pour le nom du jour de la semaine (ex : Samedi)}}
 {{rand(1,10) : pour un nombre aléatoire de 1 à 10}}
-{{tendance(commande,period) : donne la tendance de la commande sur la period 
-    Ex : tendance(#[Salle de bain][Hydrometrie][Humidité]#,1 hour) : Renvoi 1 si en augmentation, 0 si constant et -1 si en diminution}}
+{{tendance(commande,period,seuil) : donne la tendance de la commande sur la period 
+    Ex : tendance(#[Salle de bain][Hydrometrie][Humidité]#,1 hour,0.1) : Renvoi 1 si en augmentation, 0 si constant et -1 si en diminution
+         Le seuil permet de definir la sensibilitéen, attention le calcul du seuil utilise la calcul de <a target="_blank" href="http://fr.wikipedia.org/wiki/M%C3%A9thode_des_moindres_carr%C3%A9s">moindre carrés</a>}}
 {{variable(mavariable,valeur par default) : récupération de la valeur d'une variable ou de la valeur souhaitée par défaut
     Ex : variable(plop,10) renvoie la valeur de la variable plop ou 10 si elle est vide ou n'existe pas}}
 {{scenario(scenario) : donne le statut du scenario
@@ -94,6 +97,7 @@ icon : permet de changer l'icone de représentation du scenario}}
 {{#mois# : mois courant}}
 {{#annee# : année courante}}
 {{#time# : heure et minute courante (ex : 1715 pour 17h15)}}
+{{#timestamp# : retourne le nombre de secondes depuis le 1er janvier 1970}}
 {{#date# : jour et mois courant (ex : 1215 pour le 15 decembre)}}
 {{#semaine# : numéro de la semaine (ex : 51)}}
 {{#sjour# : pour le nom du jour de la semaine en anglais (ex : sunday)}}

@@ -24,10 +24,17 @@ if (view_id != '') {
         },
         success: function(html) {
             $('#div_displayView').empty().html(html.html);
-            positionEqLogic();
-            $('.eqLogicZone').each(function() {
-                $(this).masonry({columnWidth: 1});
-            });
+            setTimeout(function() {
+                positionEqLogic();
+                $('.eqLogicZone').each(function() {
+                    $(this).masonry({columnWidth: 1});
+                });
+            }, 2);
         }
     });
 }
+
+$('body').delegate('.eqLogic-widget .history', 'click', function() {
+    $('#md_modal').dialog({title: "{{Historique}}"});
+    $("#md_modal").load('index.php?v=d&modal=cmd.history&id=' + $(this).data('cmd_id')).dialog('open');
+});

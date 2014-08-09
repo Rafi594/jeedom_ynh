@@ -1,11 +1,8 @@
 <?php
-require_once dirname(__FILE__) . "/../../core/php/core.inc.php";
-include_file('core', 'authentification', 'php');
 $startLoadTime = getmicrotime();
-include_file('core', 'pageDescriptor', 'config');
-global $PAGE_DESCRIPTOR_DESKTOP;
+include_file('core', 'authentification', 'php');
 global $JEEDOM_INTERNAL_CONFIG;
-if (isConnect() && init('p') == '') {
+if (init('p') == '' && isConnect()) {
     $homePage = explode('::', $_SESSION['user']->getOptions('homePage', 'core::dashboard'));
     if (count($homePage) == 2) {
         if ($homePage[0] == 'core') {
@@ -21,8 +18,6 @@ $page = '';
 if (isConnect() && init('p') != '') {
     $page = init('p');
 }
-$title = isset($PAGE_DESCRIPTOR_DESKTOP[$page]) ? $PAGE_DESCRIPTOR_DESKTOP[$page]['title'] : $page;
-
 $plugin = init('m');
 if ($plugin != '') {
     $plugin = plugin::byId($plugin);
@@ -31,12 +26,36 @@ if ($plugin != '') {
     }
 }
 $plugins_list = plugin::listPlugin(true, true);
+$plugin_menu = '';
+$panel_menu = '';
+if (count($plugins_list) > 0) {
+    foreach ($plugins_list as $category_name => $category) {
+        $icon = '';
+        if (isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]) && isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['icon'])) {
+            $icon = $JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['icon'];
+        }
+        $name = $category_name;
+        if (isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]) && isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['name'])) {
+            $name = $JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['name'];
+        }
+        $plugin_menu .= '<li class="dropdown-submenu"><a href="#"><i class="fa ' . $icon . '"></i> {{' . $name . '}}</a>';
+        $plugin_menu .= '<ul class="dropdown-menu">';
+        foreach ($category as $pluginList) {
+            $plugin_menu .= '<li><a href="index.php?v=d&m=' . $pluginList->getId() . '&p=' . $pluginList->getIndex() . '"><i class="' . $pluginList->getIcon() . '"></i> ' . $pluginList->getName() . '</a></li>';
+            if ($pluginList->getDisplay() != '') {
+                $panel_menu .= '<li><a href="index.php?v=d&m=' . $pluginList->getId() . '&p=' . $pluginList->getDisplay() . '"><i class="' . $pluginList->getIcon() . '"></i> ' . $pluginList->getName() . '</a></li>';
+            }
+        }
+        $plugin_menu .= '</ul>';
+        $plugin_menu .= '</li>';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
     <head>
         <meta charset="utf-8">
-        <title>Jeedom - <?php echo $title; ?></title>
+        <title>Jeedom</title>
         <link rel="shortcut icon" href="core/img/logo-jeedom-sans-nom-couleur-25x25.png">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
@@ -44,15 +63,6 @@ $plugins_list = plugin::listPlugin(true, true);
         <META HTTP-EQUIV="Pragma" CONTENT="private">
         <META HTTP-EQUIV="Cache-Control" CONTENT="private, max-age=5400, pre-check=5400">
         <META HTTP-EQUIV="Expires" CONTENT="<?php echo date(DATE_RFC822, strtotime("1 day")); ?>">
-        <style type="text/css">
-            body {
-                padding-top: 60px;
-                padding-bottom: 40px;
-            }
-            .sidebar-nav {
-                padding: 9px 0;
-            }
-        </style>
         <script>
             var clientDatetime = new Date();
             var clientServerDiffDatetime = (<?php echo strtotime('now'); ?> * 1000) - clientDatetime.getTime();
@@ -85,10 +95,10 @@ $plugins_list = plugin::listPlugin(true, true);
     </head>
     <body>
         <?php
-        sendVarToJS('jeedom_langage', config::byKey('language'));
         if (!isConnect()) {
             include_file('desktop', 'connection', 'php');
         } else {
+            sendVarToJS('jeedom_langage', config::byKey('language'));
             sendVarToJS('userProfils', $_SESSION['user']->getOptions());
             sendVarToJS('user_id', $_SESSION['user']->getId());
             sendVarToJS('user_login', $_SESSION['user']->getLogin());
@@ -115,15 +125,8 @@ $plugins_list = plugin::listPlugin(true, true);
                                     <ul class="dropdown-menu">
                                         <li><a href="index.php?v=d&p=dashboard"><i class="fa fa-dashboard"></i> {{Dashboard}}</a></li>
                                         <li><a href="index.php?v=d&p=view"><i class="fa fa-picture-o"></i> {{Vue}}</a></li>
-
                                         <?php
-                                        foreach ($plugins_list as $category) {
-                                            foreach ($category as $pluginList) {
-                                                if ($pluginList->getDisplay() != '') {
-                                                    echo '<li><a href="index.php?v=d&m=' . $pluginList->getId() . '&p=' . $pluginList->getDisplay() . '"><i class="' . $pluginList->getIcon() . '"></i> ' . $pluginList->getName() . '</a></li>';
-                                                }
-                                            }
-                                        }
+                                        echo $panel_menu;
                                         ?>
                                     </ul>
                                 </li>
@@ -160,23 +163,7 @@ $plugins_list = plugin::listPlugin(true, true);
                                             if (count($plugins_list) == 0) {
                                                 echo '<li><a href="index.php?v=d&p=plugin"><i class="fa fa-tags"></i> {{Installer un plugin}}</a></li>';
                                             } else {
-                                                foreach ($plugins_list as $category_name => $category) {
-                                                    $icon = '';
-                                                    if (isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]) && isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['icon'])) {
-                                                        $icon = $JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['icon'];
-                                                    }
-                                                    $name = $category_name;
-                                                    if (isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]) && isset($JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['name'])) {
-                                                        $name = $JEEDOM_INTERNAL_CONFIG['plugin']['category'][$category_name]['name'];
-                                                    }
-                                                    echo '<li class="dropdown-submenu"><a href="#"><i class="fa ' . $icon . '"></i> {{' . $name . '}}</a>';
-                                                    echo '<ul class="dropdown-menu">';
-                                                    foreach ($category as $pluginList) {
-                                                        echo '<li><a href="index.php?v=d&m=' . $pluginList->getId() . '&p=' . $pluginList->getIndex() . '"><i class="' . $pluginList->getIcon() . '"></i> ' . $pluginList->getName() . '</a></li>';
-                                                    }
-                                                    echo '</ul>';
-                                                    echo '</li>';
-                                                }
+                                                echo $plugin_menu;
                                             }
                                             ?>
                                         </ul>
@@ -239,14 +226,10 @@ $plugins_list = plugin::listPlugin(true, true);
                     <div style="display: none;width : 100%" id="div_alert"></div>
                     <?php
                     try {
-                        if (isset($PAGE_DESCRIPTOR_DESKTOP[$page])) {
-                            include_file('desktop', $PAGE_DESCRIPTOR_DESKTOP[$page]['pageName'], 'php');
-                        } else if (isset($plugin) && is_object($plugin)) {
+                        if (isset($plugin) && is_object($plugin)) {
                             include_file('desktop', $page, 'php', $plugin->getId());
                         } else {
-                            echo '<div class="alert alert-danger div_alert">';
-                            echo '{{404 - Page non trouvée}}';
-                            echo '</div>';
+                            include_file('desktop', $page, 'php');
                         }
                     } catch (Exception $e) {
                         ob_end_clean();

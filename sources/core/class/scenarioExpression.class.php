@@ -99,8 +99,8 @@ class scenarioExpression {
                 
             }
         }
-        $replace = array('#uid#' => 'exp' . rand());
-        $return['html'] = template_replace($replace, $return['html']);
+        $replace = array('#uid#' => 'exp' . mt_rand());
+        $return['html'] = translate::exec(template_replace($replace, $return['html']), 'core/template/scenario/' . $_expression . '.default');
         return $return;
     }
 
@@ -133,7 +133,7 @@ class scenarioExpression {
         return -2;
     }
 
-    public static function tendance($_cmd_id, $_period = '1 hour') {
+    public static function tendance($_cmd_id, $_period = '1 hour', $_threshold = '') {
         $cmd = cmd::byId(trim(str_replace('#', '', $_cmd_id)));
         if (!is_object($cmd)) {
             return null;
@@ -144,10 +144,17 @@ class scenarioExpression {
         $endTime = date('Y-m-d H:i:s');
         $startTime = date('Y-m-d H:i:s', strtotime('-' . $_period . '' . $endTime));
         $tendance = $cmd->getTendance($startTime, $endTime);
-        if ($tendance > config::byKey('historyCalculTendanceThresholddMax')) {
+        if ($_threshold != '') {
+            $maxThreshold = $_threshold;
+            $minThreshold = -$_threshold;
+        } else {
+            $maxThreshold = config::byKey('historyCalculTendanceThresholddMax');
+            $minThreshold = config::byKey('historyCalculTendanceThresholddMin');
+        }
+        if ($tendance > $maxThreshold) {
             return 1;
         }
-        if ($tendance < config::byKey('historyCalculTendanceThresholddMin')) {
+        if ($tendance < $minThreshold) {
             return -1;
         }
         return 0;
@@ -161,6 +168,7 @@ class scenarioExpression {
             '#mois#' => date('m'),
             '#annee#' => date('Y'),
             '#time#' => date('Hi'),
+            '#timestamp#' => time(),
             '#date#' => date('md'),
             '#semaine#' => date('W'),
             '#sjour#' => convertDayEnToFr(date('l')),
@@ -196,7 +204,7 @@ class scenarioExpression {
             $options = $this->getOptions();
             if (is_array($options)) {
                 foreach ($options as $key => $value) {
-                    $options[$key] = self::setTags($value);
+                    $options[$key] = str_replace('"', '', self::setTags($value));
                 }
             }
             if ($this->getType() == 'action') {

@@ -1,3 +1,11 @@
+body {
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+.sidebar-nav {
+    padding: 9px 0;
+}
+
 .cursor{
     cursor : pointer;
 }
@@ -76,6 +84,16 @@
     position : relative;
     height : 100%;
     vertical-align: top;
+}
+
+.eqLogic-widget .btn-default{
+    background-color: transparent !important;
+    border: 2px solid white !important;
+    color : white !important;
+    font-weight: bold !important;
+    -webkit-border-radius:3px !important;
+    -moz-border-radius:3px !important;
+    border-radius:3px !important;
 }
 
 .cmd-widget .statistiques{

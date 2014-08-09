@@ -14,7 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
-positionEqLogic();
-$('.div_displayEquipement').each(function() {
-    $(this).masonry({columnWidth: 1});
+setTimeout(function() {
+    positionEqLogic();
+    $('.div_displayEquipement').each(function() {
+        $(this).masonry({columnWidth: 1});
+    });
+}, 2);
+
+$('body').delegate('.eqLogic-widget .history', 'click', function() {
+    $('#md_modal').dialog({title: "{{Historique}}"});
+    $("#md_modal").load('index.php?v=d&modal=cmd.history&id=' + $(this).data('cmd_id')).dialog('open');
 });
