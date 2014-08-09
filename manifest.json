@@ -1,9 +1,9 @@
 {
-  "name": "Cops",
-  "id": "cops",
+  "name": "Jeedom",
+  "id": "jeedom",
   "description": {
-    "en": "Web access to a Calibre library",
-    "fr": "Acces web à une librairie Calibre"
+    "en": "Domotic in PHP and NodeJS",
+    "fr": "Domotique en PHP et NodeJS"
   },
   "developer": {
     "name": "lunarok",
@@ -16,17 +16,17 @@
       {
         "name": "domain",
         "ask": {
-          "en": "Choose a domain for Cops"
+          "en": "Choose a domain for Jeedom"
         },
         "example": "domain.org"
       },
       {
         "name": "path",
         "ask": {
-          "en": "Choose a path for Cops"
+          "en": "Choose a path for Jeedom"
         },
-        "example": "/cops",
-        "default": "/cops"
+        "example": "/jeedom",
+        "default": "/jeedom"
       }
     ]
   }
