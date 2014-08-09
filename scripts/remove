@@ -1,8 +1,8 @@
 #!/bin/bash
 
-domain=$(sudo yunohost app setting cops domain)
+domain=$(sudo yunohost app setting jeedom domain)
 
-sudo rm /etc/nginx/conf.d/$domain.d/cops.conf
+sudo rm /etc/nginx/conf.d/$domain.d/jeedom.conf
 
 sudo service nginx reload
 sudo yunohost app ssowatconf 
