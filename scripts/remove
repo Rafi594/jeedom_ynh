@@ -11,3 +11,7 @@ sudo rm -rf /var/www/jeedom
 
 sudo service nginx reload
 sudo yunohost app ssowatconf 
+
+sudo service jeedom stop
+sudo update-rc.d jeedom remove
+sudo rm /etc/init.d/jeedom
