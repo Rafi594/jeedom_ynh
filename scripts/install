@@ -62,5 +62,5 @@ sudo sed -i 's%PATH_TO_JEEDOM="/usr/share/nginx/www/jeedom"%PATH_TO_JEEDOM="/var
 sudo service jeedom start
 
 # Configure LDAP and the Admin User
-mysql -u $db_user -p$db_pwd $db_user -e "INSERT INTO config (plugin, key, value) VALUES ('core', 'ldap:basedn', 'ou=users,dc=yunohost,dc=org'),('core', 'ldap:domain', 'dc=yunohost,dc=org'),('core', 'ldap:enable', '1'),('core', 'ldap:filter', 'objectClass=mailAccount'),('core', 'ldap:host', 'localhost'),('core', 'ldap:port', '389');"
+mysql -u $db_user -p$db_pwd $db_user -e "INSERT INTO config (`plugin`, `key`, `value`) VALUES ('core', 'ldap:basedn', 'ou=users,dc=yunohost,dc=org'),('core', 'ldap:domain', 'dc=yunohost,dc=org'),('core', 'ldap:enable', '1'),('core', 'ldap:filter', 'objectClass=mailAccount'),('core', 'ldap:host', 'localhost'),('core', 'ldap:port', '389'),('core', 'sso:allowRemoteUser', '1');"
 mysql -u $db_user -p$db_pwd $db_user -e "INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', '$user', '', NULL, NULL, '{\"admin\":1}');"
