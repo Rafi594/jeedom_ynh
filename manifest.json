@@ -16,14 +16,16 @@
       {
         "name": "domain",
         "ask": {
-          "en": "Choose a domain for Jeedom"
+          "en": "Choose a domain for Jeedom",
+          "fr": "Choisissez un domaine pour Jeedom"
         },
         "example": "domain.org"
       },
       {
         "name": "path",
         "ask": {
-          "en": "Choose a path for Jeedom"
+          "en": "Choose a path for Jeedom",
+          "en": "Choisissez un chemin pour Jeedom"
         },
         "example": "/jeedom",
         "default": "/jeedom"
@@ -31,7 +33,8 @@
       {
         "name": "user",
         "ask": {
-          "en": "Choose a Yunohost user to be admin"
+          "en": "Choose a YunoHost user to be admin",
+          "en": "Choisissez un utilisateur YunoHost pour être admin"
         },
         "example": "valid user"
       }
