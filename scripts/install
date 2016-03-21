@@ -11,20 +11,15 @@ version='2.1.1'
 	path=$2
 	admin=$3
 
-# Check admin parameter
-	sudo yunohost user list --json | grep -q "\"username\": \"$admin\""
-	if [[ ! $? -eq 0 ]]; then
-		echo "Wrong user"
-		exit 1
-	fi
-	sudo yunohost app setting $app admin -v $admin
+# Save app settings
+	sudo yunohost app setting $app admin -v "$admin"
 
 # Check domain/path availability
 	sudo yunohost app checkurl $domain$path -a $app \
 	|| (echo "Path not available: $domain$path" && exit 1)
 
 # Packages needed
-	sudo apt-get install -y -qq ffmpeg libssh2-php ntp unzip php5-cli php5-curl php5-json nodejs usb-modeswitch python-serial
+	sudo apt-get install -y -qq ntp usb-modeswitch python-serial
 
 # Copy of sources files
 	final_path=/var/www/$app
