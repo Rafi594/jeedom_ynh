@@ -33,8 +33,12 @@ version='2.1.1'
 	sudo chown -R www-data:www-data $final_path
 
 # For nginx user to be able to communicate with home automation devices
-	sudo adduser www-data dialout
-	sudo adduser www-data gpio
+	if [ $(getent group dialout) ]; then
+		sudo adduser www-data dialout
+	fi
+	if [ $(getent group gpio) ]; then
+		sudo adduser www-data gpio
+	fi
 
 # MySQL
 	db_user=$app
