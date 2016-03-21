@@ -26,7 +26,6 @@ version='2.1.1'
 	sudo mkdir -p $final_path
 	sudo unzip -qq ../sources/core-$version.zip
 	sudo cp -a core-$version/. $final_path
-	sudo cp -a ../sources/. $final_path
 	
 # Set permissions to app files
 	sudo chmod 775 -R $final_path
