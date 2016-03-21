@@ -1,43 +1,49 @@
 {
-  "name": "Jeedom",
-  "id": "jeedom",
-  "description": {
-    "en": "Domotic in PHP and NodeJS",
-    "fr": "Domotique en PHP et NodeJS"
-  },
-  "developer": {
-    "name": "lunarok",
-    "email": "cedric@wayang.fr",
-    "url": "http://www.wayang.fr"
-  },
-  "multi_instance": "false",
-  "arguments": {
-    "install": [
-      {
-        "name": "domain",
-        "ask": {
-          "en": "Choose a domain for Jeedom",
-          "fr": "Choisissez un domaine pour Jeedom"
-        },
-        "example": "domain.org"
-      },
-      {
-        "name": "path",
-        "ask": {
-          "en": "Choose a path for Jeedom",
-          "en": "Choisissez un chemin pour Jeedom"
-        },
-        "example": "/jeedom",
-        "default": "/jeedom"
-      },
-      {
-        "name": "user",
-        "ask": {
-          "en": "Choose a YunoHost user to be admin",
-          "en": "Choisissez un utilisateur YunoHost pour être admin"
-        },
-        "example": "valid user"
-      }
-    ]
-  }
+	"name": "Jeedom",
+	"id": "jeedom",
+	"description": {
+		"en": "Jeedom is a home automation application",
+		"fr": "Jeedom est une application de domotique"
+	},
+	"url": "http://www.jeedom.fr/",
+	"license": "free",
+	"developer": {
+		"name": "scith,lunarok",
+		"url": "https://github.com/scith"
+	},
+	"multi_instance": "false",
+	"services": [
+        "nginx",
+        "php5-fpm",
+        "mysql"
+    ],
+	"arguments": {
+		"install": [
+		{
+			"name": "domain",
+			"ask": {
+				"en": "Choose a domain for Jeedom",
+				"fr": "Choisissez un domaine pour Jeedom"
+			},
+			"example": "domain.org"
+		},
+		{
+			"name": "path",
+			"ask": {
+			  "en": "Choose a path for Jeedom",
+			  "en": "Choisissez un chemin pour Jeedom"
+			},
+			"example": "/jeedom",
+			"default": "/jeedom"
+		},
+		{
+			"name": "user",
+			"ask": {
+			  "en": "Choose a YunoHost user to be admin",
+			  "en": "Choisissez un utilisateur YunoHost pour être admin"
+			},
+			"example": "valid user"
+		}
+		]
+	}
 }

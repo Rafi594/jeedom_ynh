@@ -1,17 +1,21 @@
 #!/bin/bash
+app=jeedom
 
-db_user=jeedom
-db_name=jeedom
-root_pwd=$(sudo cat /etc/yunohost/mysql)
-domain=$(sudo yunohost app setting owncloud domain)
-mysql -u root -p$root_pwd -e "DROP DATABASE $db_name ; DROP USER $db_user@localhost ;"
+# Retrieve arguments
+	domain=$(sudo yunohost app setting $app domain)
+	path=$(sudo yunohost app setting $app path)
+	admin=$(sudo yunohost app setting $app admin)
 
-sudo rm /etc/nginx/conf.d/$domain.d/jeedom.conf
-sudo rm -rf /var/www/jeedom
+# Remove sources
+	sudo rm -rf /var/www/$app
 
-sudo service nginx reload
-sudo yunohost app ssowatconf 
+# Remove configuration files
+	sudo rm -f /etc/nginx/conf.d/$domain.d/$app.conf
 
-sudo service jeedom stop
-sudo update-rc.d jeedom remove
-sudo rm /etc/init.d/jeedom
+# Remove database
+	root_pwd=$(sudo cat /etc/yunohost/mysql)
+	mysql -u root -p$root_pwd -e "DROP DATABASE $app ; DROP USER $app@localhost ;"
+
+# Restart services
+	sudo service nginx reload
+	sudo yunohost app ssowatconf
