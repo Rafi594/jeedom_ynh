@@ -19,7 +19,7 @@ version='2.1.1'
 	|| (echo "Path not available: $domain$path" && exit 1)
 
 # Packages needed
-	sudo apt-get install -y -qq ntp usb-modeswitch python-serial
+	#sudo apt-get install -y -qq ntp usb-modeswitch python-serial
 
 # Copy of sources files
 	final_path=/var/www/$app
@@ -48,9 +48,11 @@ version='2.1.1'
 
 # Configure Jeedom database and initialize app
 	sudo cp $final_path/core/config/common.config.sample.php $final_path/core/config/common.config.php
+	sudo sed -i -e "s/#HOST#/localhost/g" $final_path/core/config/common.config.php
+	sudo sed -i -e "s/#PORT#/3306/g" $final_path/core/config/common.config.php
 	sudo sed -i -e "s/#DBNAME#/${db_user}/g" $final_path/core/config/common.config.php
-	sudo sed -i -e "s/#DBNAME#/${db_user}/g" $final_path/core/config/common.config.php
-	sudo sed -i -e "s/#USERNAME#/${db_pwd}/g" $final_path/core/config/common.config.php
+	sudo sed -i -e "s/#USERNAME#/${db_user}/g" $final_path/core/config/common.config.php
+	sudo sed -i -e "s/#PASSWORD#/${db_pwd}/g" $final_path/core/config/common.config.php
 	sudo chown www-data:www-data $final_path/core/config/common.config.php
 	sudo php $final_path/install/install.php mode=force
 
