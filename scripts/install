@@ -79,8 +79,8 @@ version='2.3.12'
 	ynh_app_setting_set "$app" unprotected_uris "/core/api/jeeApi.php"
 	
 # Configure LDAP and the Admin User
-	mysql -u $dbuser -p $dbpass $dbuser < ../conf/ldap_config.sql
-	mysql -u $dbuser -p $dbpass $dbuser -e "INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', '$admin', '', NULL, NULL, '{\"admin\":1}');"
+	mysql -u $dbuser -p$dbpass $dbname < ../conf/ldap_config.sql
+	mysql -u $dbuser -p$dbpass $dbname -e "INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', '$admin', '', NULL, NULL, '{\"admin\":1}');"
 
 # Restart services
 	sudo service php5-fpm restart || true
