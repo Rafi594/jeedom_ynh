@@ -24,7 +24,7 @@ version='2.3.12'
 	final_path=/var/www/${app}
 	sudo mkdir -p $final_path
 	sudo wget -qq https://github.com/jeedom/core/archive/$version.zip
-	sudo unzip -qq core-$version.zip
+	sudo unzip -qq $version.zip
 	sudo cp -a core-$version/. $final_path
 
 # Configure Jeedom database and initialize app
