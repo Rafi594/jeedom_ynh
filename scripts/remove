@@ -8,6 +8,9 @@ app=jeedom
 	domain=$(ynh_app_setting_get "$app" domain)
 	path=$(ynh_app_setting_get "$app" path)
 	admin=$(ynh_app_setting_get "$app" admin)
+	dbname=${app}
+	dbuser=${app}
+	dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
 
 # Remove sources
 	sudo rm -rf "/var/www/${app}"
