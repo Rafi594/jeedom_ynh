@@ -30,8 +30,6 @@ version='2.3.12'
 	sudo wget -qq https://github.com/jeedom/core/archive/$version.zip
 	sudo unzip -qq $version.zip
 	sudo cp -a core-$version/. $final_path
-	
-
 
 # For nginx user to be able to communicate with home automation devices
 	if [ $(getent group dialout) ]; then
@@ -73,7 +71,7 @@ version='2.3.12'
 	sudo cp ../conf/nginx.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 
 # Cron
-	echo "* * * * * su --shell=/bin/bash - www-data -c '/usr/bin/php $final_path/core/php/jeeCron.php' >/dev/null 2>&1" | cronjeedom
+	echo "* * * * * su --shell=/bin/bash - www-data -c '/usr/bin/php $final_path/core/php/jeeCron.php' >> /dev/null" > cronjeedom
 	sudo mv cronjeedom /etc/cron.d/${app}
 	sudo chown root /etc/cron.d/${app}
 	
