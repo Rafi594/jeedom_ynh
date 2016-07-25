@@ -1,6 +1,7 @@
 {
 	"name": "Jeedom",
 	"id": "jeedom",
+	"packaging_format": 1,
 	"description": {
 		"en": "Jeedom is a home automation application",
 		"fr": "Jeedom est une application de domotique"
@@ -10,6 +11,9 @@
 	"developer": {
 		"name": "scith,lunarok",
 		"url": "https://github.com/scith"
+	},
+	"requirements": {
+        "yunohost": ">= 2.4.0"
 	},
 	"multi_instance": "false",
 	"services": [

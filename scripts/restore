@@ -5,24 +5,46 @@ set -e
 
 app=jeedom
 
-# The parameter $1 is the uncompressed restore directory location
-	backup_dir=$1/apps/$app
+# Source app helpers
+	source /usr/share/yunohost/helpers
 
-# Restore sources & data
-	sudo cp -a $backup_dir/sources/. /var/www/$app
+# Retrieve arguments
+	domain=$(ynh_app_setting_get "$app" domain)
+	path=$(ynh_app_setting_get "$app" path)
+	admin=$(ynh_app_setting_get "$app" admin)
+	dbname=${app}
+	dbuser=${app}
+	dbpass=$(ynh_app_setting_get "$app" mysqlpwd)
+	
+# Check domain/path availability
+	sudo yunohost app checkurl $domain$path -a ${app} \
+	|| (echo "Path not available: $domain$path" && exit 1)
+	
+# Check destination directory
+	$final_path="/var/www/$app"
+	[[ -d $final_path ]] && ynh_die \
+	"The destination directory '$final_path' already exists.\
+	 You should safely delete it before restoring this app."
+
+# Check configuration files
+	nginx_conf="/etc/nginx/conf.d/${domain}.d/${app}.conf"
+	[[ -f $nginx_conf ]] && ynh_die \
+	"The NGINX configuration already exists at '${nginx_conf}'.
+	 You should safely delete it before restoring this app."
+	 
+# Restore the app files
+	sudo cp -a ./www "$final_path"
+	sudo cp -a ./conf/nginx.conf "$nginx_conf"
+	sudo cp -a ./config/cron "/etc/cron.d/${app}"
+	
+# Create and restore the database
+	ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
+	ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 
 # Restore permissions to app files
 	sudo chmod 775 -R $final_path
 	sudo chown -R www-data:www-data $final_path
 
-# Restore mysql database
-	db_pwd=$(sudo yunohost app setting $app mysqlpwd)
-	sudo mysql -u $app -p$db_pwd $app < $backup_dir/$app.dmp
-
-# Restore Nginx and YunoHost parameters
-	sudo cp -a $backup_dir/yunohost/. /etc/yunohost/apps/$app
-	domain=$(sudo yunohost app setting $app domain)
-	sudo cp -a $backup_dir/nginx.conf /etc/nginx/conf.d/$domain.d/$app.conf
-
-# Restart webserver
-	sudo service nginx reload
+# Reload services
+	sudo service php5-fpm restart || true
+	sudo service nginx reload || true

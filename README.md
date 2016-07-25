@@ -3,7 +3,7 @@ jeedom_ynh
 
 Jeedom application for Yunohost
 
-**Current version**: 2.1.1
+**Current version**: 2.3.12
 
 More information about Jeedom : http://www.jeedom.fr/
 
