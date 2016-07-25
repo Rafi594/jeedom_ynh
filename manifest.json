@@ -48,6 +48,15 @@
 			  "en": "Choisissez un utilisateur YunoHost pour être admin"
 			},
 			"example": "johndoe"
+		},
+		{
+			"name": "zwave",
+			"ask": {
+			  "en": "Do you want to install OpenZWave dependencies for ZWave modules?",
+			  "en": "Souhaitez-vous installer les dépendences OpenZWave pour les modules domotiques ZWave ?"
+			},
+			"choices": ["Yes", "No"],
+			"default": "No"
 		}
 		]
 	}

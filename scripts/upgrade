@@ -56,9 +56,36 @@ version='2.3.12'
 	ynh_app_setting_set "$app" unprotected_uris "/core/api/jeeApi.php"
 	
 # Configure LDAP and the Admin User
-	mysql -u $dbuser -p$dbpass $dbuser < ../conf/ldap_config.sql
-	mysql -u $dbuser -p$dbpass $dbuser -e "INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', '$admin', '', NULL, NULL, '{\"admin\":1}');"
+	sudo sed -i "s@YNH_DOMAIN@$domain@g" ../conf/config.sql
+	sudo sed -i "s@YNH_PATH@$path@g" ../conf/config.sql
+	sudo sed -i "s@YNH_ADMIN@$admin@g" ../conf/config.sql
+	mysql -u $dbuser -p$dbpass $dbname < ../conf/config.sql
 
+# OpenZWave dependencies
+	if [ "$zwave" = "Yes" ]; then
+		wget https://raw.githubusercontent.com/jeedom/plugin-openzwave/master/resources/install.sh
+		chmod +x install.sh
+		sudo bash install.sh
+	fi
+	
 # Restart services
 	sudo service php5-fpm restart || true
 	sudo service nginx reload || true
+	
+# Trap
+	function exit_properly
+	{
+		set +e
+		# Remove files
+			sudo rm -rf "/var/www/${app}"
+			sudo rm -f "/etc/cron.d/${app}"
+			sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
+		#Remove DB
+			ynh_mysql_drop_db "$dbname" 2>/dev/null || true
+			ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
+		# Reload
+			sudo service php5-fpm restart || true
+			sudo service nginx reload || true
+		exit 1
+	}
+	trap exit_properly ERR
