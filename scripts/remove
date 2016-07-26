@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 app=jeedom
 
 # Source app helpers
@@ -20,9 +22,8 @@ app=jeedom
 	[[ -n $domain ]] && sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
 
 # TBD: Remove OZW
-	if [ "$zwave" = "Yes" ]; then
-	
-	fi
+	#if [ "$zwave" = "Yes" ]; then
+	#fi
 
 # Remove www-data sudoer
 	if [ "$sudo" = "Yes" ]; then
