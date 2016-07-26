@@ -43,7 +43,12 @@ app=jeedom
 	ynh_mysql_create_db "$dbname" "$dbuser" "$dbpass"
 	ynh_mysql_connect_as "$dbuser" "$dbpass" "$dbname" < ./db.sql
 
-# TBD: Reinstall OpenZWave dependencies
+# Reinstall OpenZWave dependencies
+	if [ "$zwave" = "Yes" ]; then
+		wget https://raw.githubusercontent.com/jeedom/plugin-openzwave/master/resources/install.sh
+		chmod +x install.sh
+		sudo bash install.sh
+	fi
 
 # Restore permissions to app files
 	sudo chmod 775 -R $final_path

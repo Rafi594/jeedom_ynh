@@ -8,11 +8,11 @@ INSERT INTO config (`plugin`, `key`, `value`) VALUES
 ('core', 'sso:allowRemoteUser', '1'),
 ('core', 'internalAddr', 'YNH_DOMAIN'),
 ('core', 'internalComplement', 'YNH_PATH'),
-('core', 'internalPort', ''),
+('core', 'internalPort', '443'),
 ('core', 'internalProtocol', 'https://'),
 ('core', 'externalAddr', 'YNH_DOMAIN'),
 ('core', 'externalComplement', 'YNH_PATH'),
-('core', 'externalPort', ''),
+('core', 'externalPort', '443'),
 ('core', 'externalProtocol', 'https://');
 
 INSERT INTO user (id, login, password, options, hash, rights) VALUES ('0', 'YNH_ADMIN', '', NULL, NULL, '{\"admin\":1}');

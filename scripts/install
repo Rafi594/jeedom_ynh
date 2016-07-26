@@ -82,7 +82,7 @@ version='2.3.12'
 	sudo cp ../conf/nginx.conf /etc/nginx/conf.d/${domain}.d/${app}.conf
 
 # Cron
-	echo "* * * * * su --shell=/bin/bash - www-data -c '/usr/bin/php $final_path/core/php/jeeCron.php' >> /dev/null" > cronjeedom
+	echo "* * * * * www-data /usr/bin/php -f $final_path/core/php/jeeCron.php" > cronjeedom
 	sudo mv cronjeedom /etc/cron.d/${app}
 	sudo chown root /etc/cron.d/${app}
 	
