@@ -8,14 +8,14 @@
 	},
 	"url": "http://www.jeedom.fr/",
 	"license": "free",
-	"developer": {
+	"maintainer": {
 		"name": "scith,lunarok",
 		"url": "https://github.com/scith"
 	},
 	"requirements": {
         "yunohost": ">= 2.4.0"
 	},
-	"multi_instance": "false",
+	"multi_instance": false,
 	"services": [
         "nginx",
         "php5-fpm",
