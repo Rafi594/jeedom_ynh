@@ -13,11 +13,13 @@ version='2.3.12'
 	domain=$1
 	path=${2%/}
 	admin=$3
-	zwave=$4
+	sudo=$4
+	zwave=$5
 
 # Save app settings
 	ynh_app_setting_set "${app}" admin "$admin"
 	ynh_app_setting_set "${app}" zwave "$zwave"
+	ynh_app_setting_set "${app}" sudo "$sudo"
 
 # Check domain/path availability
 	sudo yunohost app checkurl $domain$path -a ${app} \
@@ -63,6 +65,13 @@ version='2.3.12'
 # Set permissions to app files
 	sudo chmod 775 -R $final_path
 	sudo chown -R www-data:www-data $final_path
+	
+# Sudo permissions to www-data if agreed to
+	if [ "$sudo" = "Yes" ]; then
+		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+			sudo bash -c 'echo "www-data ALL=(ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
+		fi
+	fi
 
 # Install Jeedom	
 	sudo php $final_path/install/install.php mode=force
@@ -105,9 +114,13 @@ version='2.3.12'
 			sudo rm -rf "/var/www/${app}"
 			sudo rm -f "/etc/cron.d/${app}"
 			sudo rm -f "/etc/nginx/conf.d/${domain}.d/${app}.conf"
-		#Remove DB
+		# Remove DB
 			ynh_mysql_drop_db "$dbname" 2>/dev/null || true
 			ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
+		# Remove www-data sudoer
+		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+			sudo sed -i "/www-data ALL=(ALL) NOPASSWD: ALL/d" /etc/sudoers
+		fi
 		# Reload
 			sudo service php5-fpm restart || true
 			sudo service nginx reload || true

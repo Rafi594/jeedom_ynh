@@ -50,6 +50,15 @@
 			"example": "johndoe"
 		},
 		{
+			"name": "sudo",
+			"ask": {
+			  "en": "Do you agree giving sudo rights to the www-data (public web) user? This is required for most Jeedom features to work. However, this is a serious security risk if you have other public-facing YunoHost apps, as all web apps will have sudo rights. Attackers could therefore exploit any YNH app to take control of your server.",
+			  "en": "Acceptez-vous de donner les droits sudo à l'utilisateur www-data (web) ? Ces droits sont nécessaires au bon fonctionnement de Jeedom. Ils comportent toutefois un risque de sécurité important si vous avez d'autres applications YunoHost accessibles en ligne. Ces applications auront les droits administrateurs et les attaquants pourraient donc les exploiter pour prendre le controle de votre serveur."
+			},
+			"choices": ["Yes", "No"],
+			"default": "Yes"
+		},
+		{
 			"name": "zwave",
 			"ask": {
 			  "en": "Do you want to install OpenZWave dependencies for ZWave modules?",
