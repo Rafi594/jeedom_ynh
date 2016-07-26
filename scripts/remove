@@ -26,7 +26,7 @@ app=jeedom
 
 # Remove www-data sudoer
 	if [ "$sudo" = "Yes" ]; then
-		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+		if [ $(sudo grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
 			sudo sed -i "/www-data ALL=(ALL) NOPASSWD: ALL/d" /etc/sudoers
 		fi
 	fi

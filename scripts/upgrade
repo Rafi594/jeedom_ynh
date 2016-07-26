@@ -43,7 +43,7 @@ version='2.3.12'
 
 # Sudo permissions to www-data if agreed to
 	if [ "$sudo" = "Yes" ]; then
-		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+		if [ $(sudo grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
 			sudo bash -c 'echo "www-data ALL=(ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 		fi
 	fi
@@ -93,7 +93,7 @@ version='2.3.12'
 			ynh_mysql_drop_db "$dbname" 2>/dev/null || true
 			ynh_mysql_drop_user "$dbuser" 2>/dev/null || true
 		# Remove www-data sudoer
-		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+		if [ $(sudo grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
 			sudo sed -i "/www-data ALL=(ALL) NOPASSWD: ALL/d" /etc/sudoers
 		fi
 		# Reload

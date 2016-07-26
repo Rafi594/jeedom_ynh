@@ -51,7 +51,7 @@ app=jeedom
 
 # Restore sudo permissions to www-data if agreed to
 	if [ "$sudo" = "Yes" ]; then
-		if [ $(grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
+		if [ $(sudo grep "www-data ALL=(ALL) NOPASSWD: ALL" /etc/sudoers | wc -l) -eq 0 ];then
 			sudo bash -c 'echo "www-data ALL=(ALL) NOPASSWD: ALL" | (EDITOR="tee -a" visudo)'
 		fi
 	fi
