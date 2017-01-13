@@ -4,8 +4,8 @@
         domain="domain.tld"    (DOMAIN)
         path="/jeedom"    (PATH)
         admin="john"   (USER)
-        sudo="Yes"  (SUDO|Yes|No)
-        zwave="No" (ZWAVE|Yes|No)
+        sudo="Yes"
+        zwave="No"
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
@@ -29,8 +29,8 @@
         domain="domain.tld"    (DOMAIN)
         path="/jeedom"    (PATH)
         admin="john"   (USER)
-        sudo="Yes"  (SUDO|Yes|No)
-        zwave="Yes" (ZWAVE|Yes|No)
+        sudo="Yes"
+        zwave="Yes"
     ; Checks
         pkg_linter=1
         setup_sub_dir=1
