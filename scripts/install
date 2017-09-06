@@ -4,7 +4,7 @@
 set -e
 
 app=jeedom
-version='2.3.12'
+version='3.0.0'
 
 # Source app helpers
 	source /usr/share/yunohost/helpers
